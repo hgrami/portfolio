@@ -1,41 +1,96 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Sphere, MeshDistortMaterial } from '@react-three/drei';
-import { Mesh, Color } from 'three';
+import { Points } from '@react-three/drei';
+import * as THREE from 'three';
 
-const AnimatedBackground: React.FC = () => {
-  const meshRef = useRef<Mesh>(null);
-  const colorRef = useRef(new Color('#6A0DAD')); // Brighter purple color
+const ParticleNetwork: React.FC = () => {
+  const pointsRef = useRef<THREE.Points>(null);
+  const lineRef = useRef<THREE.LineSegments>(null);
+
+  const particleCount = 100;
+  const positions = useMemo(() => {
+    const pos = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 10;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 10;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 10;
+    }
+    return pos;
+  }, []);
+
+  const lineMaterial = useMemo(() => new THREE.LineBasicMaterial({ color: 0x8080ff, transparent: true, opacity: 0.5 }), []);
 
   useFrame(({ clock }) => {
-    if (meshRef.current) {
-      // Rotate the sphere
-      meshRef.current.rotation.x = Math.sin(clock.getElapsedTime() * 0.3) * 0.2;
-      meshRef.current.rotation.y = Math.sin(clock.getElapsedTime() * 0.5) * 0.2;
+    if (pointsRef.current && lineRef.current) {
+      const time = clock.getElapsedTime();
+      const positions = pointsRef.current.geometry.attributes.position.array as Float32Array;
+      const linePositions = lineRef.current.geometry.attributes.position.array as Float32Array;
+      let lineIndex = 0;
 
-      // Pulsate the sphere
-      const scale = 1 + Math.sin(clock.getElapsedTime()) * 0.1;
-      meshRef.current.scale.set(scale, scale, scale);
+      for (let i = 0; i < particleCount; i++) {
+        const i3 = i * 3;
+        positions[i3] += Math.sin(time + i * 0.1) * 0.01;
+        positions[i3 + 1] += Math.cos(time + i * 0.1) * 0.01;
+        positions[i3 + 2] += Math.sin(time + i * 0.1) * 0.01;
 
-      // Shift colors over time
-      const hue = (clock.getElapsedTime() * 0.05) % 1; // Slower color shift
-      colorRef.current.setHSL(hue, 0.7, 0.5); // Increased saturation
+        // Connect nearby particles with lines
+        for (let j = i + 1; j < particleCount; j++) {
+          const j3 = j * 3;
+          const dx = positions[i3] - positions[j3];
+          const dy = positions[i3 + 1] - positions[j3 + 1];
+          const dz = positions[i3 + 2] - positions[j3 + 2];
+          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+          if (dist < 2) {
+            linePositions[lineIndex++] = positions[i3];
+            linePositions[lineIndex++] = positions[i3 + 1];
+            linePositions[lineIndex++] = positions[i3 + 2];
+            linePositions[lineIndex++] = positions[j3];
+            linePositions[lineIndex++] = positions[j3 + 1];
+            linePositions[lineIndex++] = positions[j3 + 2];
+          }
+        }
+      }
+
+      pointsRef.current.geometry.attributes.position.needsUpdate = true;
+      lineRef.current.geometry.setDrawRange(0, lineIndex / 3);
+      lineRef.current.geometry.attributes.position.needsUpdate = true;
     }
   });
 
   return (
-    <mesh ref={meshRef} scale={[5, 5, 5]}> {/* Increased scale for more visibility */}
-      <Sphere args={[1, 64, 64]}>
-        <MeshDistortMaterial
-          color={colorRef.current}
-          attach="material"
-          distort={0.4} // Reduced distortion for clearer shape
-          speed={1.5}
-          roughness={0.1}
-          metalness={0.9} // Increased metalness for more reflectivity
-        />
-      </Sphere>
-    </mesh>
+    <group>
+      <Points ref={pointsRef}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            count={particleCount}
+            array={positions}
+            itemSize={3}
+          />
+        </bufferGeometry>
+        <pointsMaterial size={0.05} color={0x8080ff} sizeAttenuation transparent opacity={0.8} />
+      </Points>
+      <lineSegments ref={lineRef}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            count={particleCount * particleCount}
+            array={new Float32Array(particleCount * particleCount * 3)}
+            itemSize={3}
+          />
+        </bufferGeometry>
+        <primitive object={lineMaterial} attach="material" />
+      </lineSegments>
+    </group>
+  );
+};
+
+const AnimatedBackground: React.FC = () => {
+  return (
+    <group>
+      <ParticleNetwork />
+    </group>
   );
 };
 

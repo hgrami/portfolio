@@ -6,11 +6,12 @@ import {
   FaLaptopCode,
   FaGraduationCap,
   FaBriefcase,
-//   FaRobot,
+  FaRobot,
 } from 'react-icons/fa';
 import { Canvas } from '@react-three/fiber';
 import AnimatedBackground from './AnimatedBackground';
 import { IconType } from 'react-icons';
+import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 
 const AITextGenerator = () => {
   const [text, setText] = useState('');
@@ -65,14 +66,17 @@ const Landing: React.FC = () => {
     <div className="relative flex-grow flex flex-col">
       <div className="absolute inset-0 z-0">
         <Canvas>
-          <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} />
+          <PerspectiveCamera makeDefault position={[0, 0, 5]} fov={75} />
+          <ambientLight intensity={0.2} />
+          <pointLight position={[10, 10, 10]} intensity={0.8} />
+          <pointLight position={[-10, -10, -10]} intensity={0.5} />
           <AnimatedBackground />
+          <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
         </Canvas>
       </div>
 
       <div className="relative z-10 flex flex-col flex-grow">
-        <header className="w-full py-10 bg-gradient-to-r from-blue-600 to-purple-600 bg-opacity-90">
+        <header className="w-full py-10 bg-gradient-to-r from-blue-600 to-purple-600 bg-opacity-70">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <AITextGenerator />
             <motion.p
@@ -89,30 +93,18 @@ const Landing: React.FC = () => {
           </div>
         </header>
 
-        <div className="flex-grow flex items-center justify-center p-4 bg-gray-900 bg-opacity-50">
+        <div className="flex-grow flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             className="grid grid-cols-2 sm:grid-cols-3 gap-6 max-w-4xl w-full"
           >
-            <NavigationCard
-              icon={FaLaptopCode}
-              title="About Me"
-              path="/about"
-            />
+            <NavigationCard icon={FaLaptopCode} title="About Me" path="/about" />
             <NavigationCard icon={FaCode} title="Skills" path="/skills" />
-            <NavigationCard
-              icon={FaBriefcase}
-              title="Experience"
-              path="/experience"
-            />
-            {/* <NavigationCard icon={FaRobot} title="Projects" path="/projects" /> */}
-            <NavigationCard
-              icon={FaGraduationCap}
-              title="Education"
-              path="/education"
-            />
+            <NavigationCard icon={FaBriefcase} title="Experience" path="/experience" />
+            <NavigationCard icon={FaRobot} title="Projects" path="/projects" />
+            <NavigationCard icon={FaGraduationCap} title="Education" path="/education" />
           </motion.div>
         </div>
       </div>
