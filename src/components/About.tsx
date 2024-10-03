@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FaCode, FaServer, FaCloud, FaMobileAlt } from 'react-icons/fa';
+import profileImage from '../assets/images/profile.png';
+import { userName } from '../constants';
 
 const About: React.FC = () => {
   const containerVariants = {
@@ -32,8 +34,8 @@ const About: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         <motion.div className="mb-12 text-center" variants={itemVariants}>
           <img 
-            src="/images/profile.png" 
-            alt="Hector Ramirez" 
+            src={profileImage} 
+            alt={userName} 
             className="w-48 h-48 rounded-full mx-auto mb-4 border-4 border-blue-400 shadow-lg"
           />
           <h2 className="text-2xl font-semibold mb-2">Senior Software Engineer</h2>
