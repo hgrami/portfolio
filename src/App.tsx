@@ -9,13 +9,12 @@ import Education from './components/Education'
 import Skills from './components/Skills'
 import Modal from './components/Modal'
 import Landing from './components/Landing'
+import { email, linkedInUrl, userName } from './constants'
 
 const App: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [isEmailModalOpen, setIsEmailModalOpen] = useState<boolean>(false)
   const [isCopied, setIsCopied] = useState<boolean>(false)
-
-  const email = 'hector.ramirez.asturias@gmail.com'
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(email).then(() => {
@@ -29,9 +28,9 @@ const App: React.FC = () => {
       <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100">
         <nav className="bg-gray-800 p-4 sticky top-0 z-20">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-            <Link to="/" className="text-2xl font-bold hover:text-blue-400 transition-colors">Hector Ramirez</Link>
+            <Link to="/" className="text-2xl font-bold hover:text-blue-400 transition-colors">{userName}</Link>
             <div className="hidden md:flex space-x-6">
-              {['About', 'Skills', 'Experience', 'Education'].map((item) => (
+              {['About', 'Skills', 'Experience', 'Education', 'Projects'].map((item) => (
                 <Link key={item} to={`/${item.toLowerCase()}`} className="hover:text-blue-400 transition-colors">{item}</Link>
               ))}
             </div>
@@ -52,7 +51,7 @@ const App: React.FC = () => {
               transition={{ duration: 0.3 }}
               className="bg-gray-800 md:hidden w-full z-10"
             >
-              {['About', 'Skills', 'Experience', 'Education'].map((item) => (
+              {['About', 'Skills', 'Experience', 'Education', 'Projects'].map((item) => (
                 <Link
                   key={item}
                   to={`/${item.toLowerCase()}`}
@@ -78,9 +77,9 @@ const App: React.FC = () => {
 
         <footer className="bg-gray-800 text-white py-6 mt-auto">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
-            <p>&copy; 2024 Hector Ramirez. All rights reserved.</p>
+            <p>&copy; {`2024 ${userName}. All rights reserved.`}</p>
             <div className="mt-4 md:mt-0 flex space-x-6">
-              <a href="https://www.linkedin.com/in/hgrami" target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-400 transition-colors">
+              <a href={linkedInUrl} target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-400 transition-colors">
                 <Linkedin size={24} />
               </a>
               <button onClick={() => setIsEmailModalOpen(true)} className="text-white hover:text-blue-400 transition-colors">
